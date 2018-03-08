@@ -1,0 +1,13 @@
+PKG core
+PKG ocamlnet
+PKG ucorelib
+PKG xml-light
+PKG async
+PKG cpdf
+PKG llvm
+PKG lablgtk
+PKG lablgl
+PKG lwt
+PKG re
+PKG menhirlib
+PKG sedlex
