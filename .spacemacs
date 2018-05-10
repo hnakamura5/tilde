@@ -40,22 +40,25 @@ values."
      version-control
      emacs-lisp
      haskell
-     octave
+     ;; octave
      rust
      c-c++
+     rtags
+     spacemacs-cmake-ide
      latex
      ocaml
-     coq
+     ;; coq
      python
-     csharp
+     ;; csharp
      shell-scripts
-     java
-     agda
+     ;; java
+     ;; agda
      erlang
      go
      bibtex
      html
      javascript
+     nlinum
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -127,8 +130,8 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 15
+   dotspacemacs-default-font '("Source Han Code JP"
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -263,6 +266,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
   (setq-default dotspacemacs-configuration-layers
                 '((c-c++ :variables c-c++-enable-clang-support t)))
+  (setq-default cmake-ide-build-dir "build")
+  (push "/usr/local/share/emacs/site-lisp/rtags" load-path)
+
   )
 ;;(message "point3")
 (defun dotspacemacs/user-config ()
@@ -277,10 +283,11 @@ you should place you code here."
   ;;;; Start of user-config
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (global-linum-mode)
-  ;(linum-relative-toggle)
-  (defcustom linum-disabled-modes-list
+  (global-nlinum-mode)
+  ;(nlinum-relative-toggle)
+  (defcustom nlinum-disabled-modes-list
     '(
+      helm-mode
       eshell-mode
       wl-summary-mode
       compilation-mode
@@ -295,24 +302,24 @@ you should place you code here."
       )
     "* List of modes disabled when global linum mode is on"
     :type '(repeat (sexp :tag "Major mode"))
-    :tag " Major modes where linum is disabled: "
+    :tag " Major modes where linum is disabled:"
     :group 'linum
     )
-  (defcustom linum-disable-starred-buffers 't
+  (defcustom nlinum-disable-starred-buffers 't
     "* Disable buffers that have stars in them like *Gnu Emacs*"
     :type 'boolean
-    :group 'linum)
+    :group 'nlinum)
 
-  ;;* When linum is running globally, disable line number in modes defined in `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering in starred modes like *scratch*"
-  (defadvice linum-on (around my-linum-on() activate)
-    (message "linum-advice")
-    (unless (or (minibufferp)
-              (member major-mode linum-disabled-modes-list)
-              (string-match "*" (buffer-name))
-              (> (buffer-size) 3000000)) ;; disable linum on buffer greater than 3MB, otherwise it's unbearably slow
-      (message "linum-on")
-      (linum-mode 1)
-    ))
+  ;; ;;* When linum is running globally, disable line number in modes defined in `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering in starred modes like *scratch*"
+  ;; (defadvice linum-on (around my-linum-on() activate)
+  ;;   (message "linum-advice")
+  ;;   (unless (or (minibufferp)
+  ;;             (member major-mode linum-disabled-modes-list)
+  ;;             (string-match "*" (buffer-name))
+  ;;             (> (buffer-size) 3000000)) ;; disable linum on buffer greater than 3MB, otherwise it's unbearably slow
+  ;;     (message "linum-on")
+  ;;     (linum-mode 1)
+  ;;   ))
   (setq-default indicate-empty-lines nil)
   (spacemacs/toggle-vi-tilde-fringe-off)
   (setq-default vi-tilde-fringe nil)
@@ -371,6 +378,11 @@ you should place you code here."
                (setq comint-output-filter-functions
                      'comint-truncate-buffer)
                )))
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;; Start of language specific config
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (setq-default python-shell-interpreter "python3")
+
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;; Start of key-config
@@ -421,9 +433,15 @@ you should place you code here."
   (eval-after-load 'company
     '(progn
        (let ((map company-active-map))
+         (define-key map (kbd "<tab>") 'company-complete)
          (define-key map (kbd "C-f") 'forward-char)
          (define-key map (kbd "C-h") 'delete-backward-char)
          (define-key map (kbd "<F1>") 'company-show-doc-buffer))))
+  ;; irony にc++14オプションを与える
+  ;; (eval-after-load 'irony
+  ;;   '(progn
+  ;;      (setq-default irony-additional-clang-options '("-std=c++14" "-stdlib=libc++"))
+  ;;      (setq-default irony--compile-options '("-std=c++14" "-stdlib=libc++"))))
   ;;isearch中にC-hがバックスペース、<F1>でヘルプ
   (define-key isearch-mode-map (kbd "C-h") 'isearch-del-char)
   (define-key isearch-mode-map (kbd "<F1>") 'isearch-help-for-help)
@@ -434,7 +452,9 @@ you should place you code here."
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;; End of user-config
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; (setq x-select-enable-clipboard nil)
   )
+ 
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable de≈finitions.
