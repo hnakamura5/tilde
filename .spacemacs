@@ -43,7 +43,6 @@ values."
      ;; octave
      rust
      c-c++
-     rtags
      spacemacs-cmake-ide
      latex
      ocaml
@@ -264,6 +263,7 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+  ;; initializing cmake-ide
   (setq-default dotspacemacs-configuration-layers
                 '((c-c++ :variables c-c++-enable-clang-support t)))
   (setq-default cmake-ide-build-dir "build")
@@ -411,23 +411,37 @@ you should place you code here."
   (global-set-key (kbd "<F1>") help-map)
   (global-set-key (kbd "C-;") 'hippie-expand)
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;; c/c++ configuration
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Bind clang-format-region to C-M-tab in all modes:
   (global-set-key [C-M-tab] 'clang-format-region)
   ;; Bind clang-format-buffer to tab on the c++-mode only:
   (add-hook 'c++-mode-hook 'clang-format-bindings)
   (defun clang-format-bindings ()
     (define-key c++-mode-map [tab] 'clang-format-buffer))
-  
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;; go configuration
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (go :variables
+      go-use-gometalinter t
+      gofmt-command "goimports"
+      go-tab-width 4)
+
+
   (eval-after-load 'yasnippet
     '(progn
        ;; companyと競合するのでyasnippetのフィールド移動は "C-i" のみにする
        (define-key yas-keymap (kbd "<tab>") nil)
        (yas-global-mode 1)))
-  ;;flyspellがC-;を奪うので再び書き直す。
   (eval-after-load 'flyspell
     '(progn
+       ;;flyspellがC-;を奪うので再び書き直す。
        (global-set-key (kbd "C-;") 'hippie-expand)
-       (define-key flyspell-mode-map (kbd "C-;") 'hippie-expand)))
+       (define-key flyspell-mode-map (kbd "C-;") 'hippie-expand)
+       ;; flyspellがstring内で走らないようにする
+       (setq-default flyspell-prog-text-faces '(font-lock-comment-face font-lock-doc-face))))
   ;;company補完中のC-fで勝手に補完しないように強制
   ;;company補完中にC-hでバックスペース、<F1>でヘルプドキュメント
   (eval-after-load 'company
